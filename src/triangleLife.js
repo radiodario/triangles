@@ -13,10 +13,10 @@ module.exports = function(canvas) {
   var colorCounter = 0;
   var counterAngle = 0;
   var speed = 1000;
-  var fg_alpha = 50;
-  var bg_alpha = 50;
+  var fg_alpha = 40;
+  var bg_alpha = 20;
   var seeds = 5;
-  var updateInterval = 30;
+  var updateInterval = 20;
   var waveform = 'triangle'
   
   function initializeField () {
@@ -116,6 +116,16 @@ module.exports = function(canvas) {
 
       var randomButton = document.querySelector('button#randomize')
       randomButton.addEventListener('click', this.random.bind(this));
+
+      var saveButton = document.querySelector('button#save');
+      saveButton.addEventListener('click', this.saveSnap.bind(this));
+    },
+
+    saveSnap : function() {
+      debugger;
+      var imgURI = canvas.toDataURL('image/png');
+      console.log(imgURI)
+      window.open(imgURI);
     },
 
     update: function() {
