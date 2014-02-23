@@ -24,10 +24,14 @@ a {
   margin: auto;
 
   &.show {
-   
+   margin: auto;
+   @media screen and (max-width: 800px) {
+     left: 0;
+     right: 0;
+   }
   }
 
-  height: 400px;
+  height: 430px;
   width: 300px;
   text-align: center;
   z-index: 2;
