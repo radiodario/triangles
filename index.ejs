@@ -2,43 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
   <title>triangles</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="title">
-<h1 id="title">triangles</h1>
-<p>by <a href="http://twitter.com/radiodario">@radiodario</a></p>
-<div class="controls">
-Sim Speed: <input type="range" name="updateInterval" min="1" max="100">
-<br>
-<br>
-<input type="checkbox" name="stroke"> stroke
-<input type="checkbox" name="fill"> fill
-<br>
-<br>
-<input type="radio" name="wave" value="sine"> ∿
-<input type="radio" name="wave" value="triangle" checked> ∧
-<input type="radio" name="wave" value="saw"> saw
-<br>
-<br>
-Col Speed: <input type="range" name="speed" min="1" max="20000">
-<br>
-FG Alpha: <input type="range" name="fg_alpha" min="1" max="100">
-<br>
-BG Alpha: <input type="range" name="bg_alpha" min="1" max="100">
+  <div class="title">
+    <h1 id="title">triangles</h1>
+    <p>by <a href="http://twitter.com/radiodario">@radiodario</a></p>
+    <div class="controls">
+      Sim Speed: <input type="range" name="updateInterval" min="1" max="100">
+      <br>
+      <br>
+      <input type="checkbox" name="stroke"> stroke
+      <input type="checkbox" name="fill"> fill
+      <br>
+      <br>
+      <input type="radio" name="wave" value="sine"> ∿
+      <input type="radio" name="wave" value="triangle" checked> ∧
+      <input type="radio" name="wave" value="saw"> saw
+      <br>
+      <br>
+      Col Speed: <input type="range" name="speed" min="1" max="20000">
+      <br>
+      FG Alpha: <input type="range" name="fg_alpha" min="1" max="100">
+      <br>
+      BG Alpha: <input type="range" name="bg_alpha" min="1" max="100">
 
-<br>
-<br>
-Seeds: <input type="range" name="seeds" min="1" max="10">
-<br>
-<button id="randomize">Randomize!</button>
-<br>
-<button id="save">Save Snapshot</button>
-</div>
-<button id="hide">Hide</button>
-
-</div>
+      <br>
+      <br>
+      Seeds: <input type="range" name="seeds" min="1" max="10">
+      <br>
+      <button id="randomize">Randomize!</button>
+      <br>
+    <button id="save">Save Snapshot</button>
+    </div>
+  <button id="hide">Hide</button>
+  </div>
 <script id="live-reload" src="http://localhost:35729/livereload.js"></script>
 <script src="app.js"></script>
 </body>
