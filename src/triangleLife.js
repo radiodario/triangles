@@ -119,13 +119,27 @@ module.exports = function(canvas) {
 
       var saveButton = document.querySelector('button#save');
       saveButton.addEventListener('click', this.saveSnap.bind(this));
+
+      var hideButton = document.querySelector('button#hide');
+      hideButton.addEventListener('click', this.toggleControls.bind(this));
     },
 
     saveSnap : function() {
-      debugger;
       var imgURI = canvas.toDataURL('image/png');
-      console.log(imgURI)
       window.open(imgURI);
+    },
+
+    toggleControls : function(e) {
+      var t = document.querySelector('.title');
+      if (t.classList.contains('hide')) {
+        t.classList.remove('hide')
+        t.classList.add('show')
+        e.currentTarget.innerHTML = 'Hide'
+      } else {
+        t.classList.add('hide')
+        t.classList.remove('show')
+        e.currentTarget.innerHTML = 'Controls'
+      }
     },
 
     update: function() {
