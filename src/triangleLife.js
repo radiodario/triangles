@@ -127,6 +127,7 @@ module.exports = function(canvas) {
     saveSnap : function() {
       var imgURI = canvas.toDataURL('image/png');
       window.open(imgURI);
+      console.log('opening', imgURI)
     },
 
     toggleControls : function(e) {
