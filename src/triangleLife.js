@@ -200,7 +200,6 @@ module.exports = function(canvas) {
 
     draw: function() {
       context.fillStyle = 'rgba(0, 0, 0, ' + bg_alpha/100 +')';
-      debug.innerHTML = 'rgba(0, 0, 0, ' + bg_alpha/100 +')';
       context.fillRect(0, 0, width, height);
 
 
@@ -303,8 +302,7 @@ module.exports = function(canvas) {
 
 
       var color = hslToRgb(colorCounter, 1, 0.5, fg_alpha / 100);
-      debug.innerHTML = waveform;
-
+      
       if (fill) {
         context.fillStyle = color;
         context.fill();
