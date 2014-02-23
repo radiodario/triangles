@@ -16,11 +16,20 @@ a {
 .title {
   position: fixed;
   margin: auto;
-  height: 400px;
+  height: 430px;
   width: 300px;
   text-align: center;
   z-index: 2;
   background-color: rgba(0, 0, 0, 0.7);
+}
+.title.show {
+  margin: auto;
+}
+@media screen and (max-width: 800px) {
+  .title.show {
+    left: 0;
+    right: 0;
+  }
 }
 .title.hide {
   width: 50px;
