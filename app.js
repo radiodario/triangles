@@ -1,37 +1,40 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var triangleLife = require('./triangleLife');
 var canvas = document.createElement('canvas');
-canvas.width = window.innerWidth + 20;
-canvas.height = window.innerHeight;
-document.body.appendChild(canvas);
-
-
-window.onload = function() {
+var tL = null;
+var animId = null;
+var lastUpdate = 0
+var setup = function() {
   
-  var tL = triangleLife(canvas)
+  canvas.width = window.innerWidth + 20;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+  tL = triangleLife(canvas)
   tL.setup();
 
-  var lastUpdate = 0
-  
-
-  function run(timestamp) {
-
-    if (timestamp > lastUpdate + tL.updateInterval()) {
-      tL.update();
-      lastUpdate = timestamp
-    }
-
-    tL.draw();
-
-    requestAnimationFrame(run);
-
-  }
-
-  requestAnimationFrame(run);
-  
+  cancelAnimationFrame(animId);
+  animId = requestAnimationFrame(run);
 }
 
 
+function run(timestamp) {
+
+  if (timestamp > lastUpdate + tL.updateInterval()) {
+    tL.update();
+    lastUpdate = timestamp
+  }
+
+  tL.draw();
+
+  animId = requestAnimationFrame(run);
+
+}
+
+
+
+
+window.onload = setup
+window.onresize = setup
 },{"./triangleLife":4}],2:[function(require,module,exports){
 module.exports = function(h, s, l, a){
 
@@ -111,10 +114,10 @@ module.exports = function(canvas) {
   var colorCounter = 0;
   var counterAngle = 0;
   var speed = 1000;
-  var fg_alpha = 50;
-  var bg_alpha = 50;
+  var fg_alpha = 40;
+  var bg_alpha = 20;
   var seeds = 5;
-  var updateInterval = 30;
+  var updateInterval = 20;
   var waveform = 'triangle'
   
   function initializeField () {
@@ -214,6 +217,16 @@ module.exports = function(canvas) {
 
       var randomButton = document.querySelector('button#randomize')
       randomButton.addEventListener('click', this.random.bind(this));
+
+      var saveButton = document.querySelector('button#save');
+      saveButton.addEventListener('click', this.saveSnap.bind(this));
+    },
+
+    saveSnap : function() {
+      debugger;
+      var imgURI = canvas.toDataURL('image/png');
+      console.log(imgURI)
+      window.open(imgURI);
     },
 
     update: function() {
