@@ -10,9 +10,16 @@ window.onload = function() {
   var tL = triangleLife(canvas)
   tL.setup();
 
+  var lastUpdate = 0
+  
+
   function run(timestamp) {
 
-    tL.update();
+    if (timestamp > lastUpdate + tL.updateInterval()) {
+      tL.update();
+      lastUpdate = timestamp
+    }
+
     tL.draw();
 
     requestAnimationFrame(run);
