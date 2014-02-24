@@ -25,6 +25,26 @@ module.exports = function(canvas) {
   var monochrome = true;
   var monochromeHue = 0;
 
+
+  //========= CONTROLS
+  var strokeInput = document.querySelector('input[name=stroke]');
+  var fillInput = document.querySelector('input[name=fill]');
+  var waveTypeInputs = document.querySelectorAll('input[name=wave]');
+  var updateInput = document.querySelector('input[name=updateInterval]');
+  var drawInput = document.querySelector('input[name=drawInterval]');
+  var sizeInput = document.querySelector('input[name=triangleSize]');
+  var monochromeInput = document.querySelector('input[name=monochrome]');
+  var colorInput = document.querySelector('input[name=color]');
+  var speedInput = document.querySelector('input[name=speed]');
+  var bg_alphaInput = document.querySelector('input[name=bg_alpha]');
+  var fg_alphaInput = document.querySelector('input[name=fg_alpha]');
+  var seedsInput = document.querySelector('input[name=seeds]');
+  var randomButton = document.querySelector('button#randomize')
+  var saveButton = document.querySelector('button#save');
+  var hideButton = document.querySelector('button#hide');
+
+
+
   function initializeField () {
     var field = new Array(N)
     for (var i = 0; i < N; i++) {
@@ -105,92 +125,78 @@ module.exports = function(canvas) {
 
     },
 
-
-
-    setupControls: function() {
-      var strokeInput = document.querySelector('input[name=stroke]');
-      strokeInput.checked = stroke;
+    setupControlListeners : function() {
       strokeInput.addEventListener('change', function(e) {
         stroke = strokeInput.checked
-      })
-      var fillInput = document.querySelector('input[name=fill]');
-      fillInput.checked = fill;
+      });
       fillInput.addEventListener('change', function(e) {
         fill = fillInput.checked
-      })
-
-      var that = this;
-      var waveTypeInputs = document.querySelectorAll('input[name=wave]');
+      });
 
       for (var i = 0; i < waveTypeInputs.length; i++) {
         waveTypeInputs[i].addEventListener('click', function(e) {
           waveform = e.currentTarget.value;
-        })
+        });
       }
-
-      var updateInput = document.querySelector('input[name=updateInterval]')
-      updateInput.value = updateInterval;
       updateInput.addEventListener('change', function(e) {
         updateInterval = Number(e.currentTarget.value);
       });
-      var drawInput = document.querySelector('input[name=drawInterval]')
-      drawInput.value = drawInterval;
       drawInput.addEventListener('change', function(e) {
         drawInterval = Number(e.currentTarget.value);
       });
 
-      var sizeInput = document.querySelector('input[name=triangleSize]');
-      sizeInput.value = N;
+      var that = this;
       sizeInput.addEventListener('change', function (e) {
         N = Number(e.currentTarget.value);
         that.setSize();
         that.random();
       })
-
-      var monochromeInput = document.querySelector('input[name=monochrome]')
-      monochromeInput.checked = monochrome;
       monochromeInput.addEventListener('change', function (e) {
         monochrome = monochromeInput.checked;
       })
-
-      var colorInput = document.querySelector('input[name=color]')
-      colorInput.value = monochromeHue;
       colorInput.addEventListener('change', function(e) {
         monochromeHue = Number(e.currentTarget.value);
       });
-
-      var speedInput = document.querySelector('input[name=speed]')
-      speedInput.value = speed;
       speedInput.addEventListener('change', function(e) {
         speed = Number(e.currentTarget.value);
       });
-      
-      var bg_alphaInput = document.querySelector('input[name=bg_alpha]')
-      bg_alphaInput.value = bg_alpha;
       bg_alphaInput.addEventListener('change', function(e) {
         bg_alpha = Number(e.currentTarget.value)
       });
-     
-      var fg_alphaInput = document.querySelector('input[name=fg_alpha]')
-      fg_alphaInput.value = fg_alpha;
       fg_alphaInput.addEventListener('change', function(e) {
         fg_alpha = Number(e.currentTarget.value)
       });
-
-      var seedsInput = document.querySelector('input[name=seeds]');
-      seedsInput.value = seeds;
       seedsInput.addEventListener('click', function(e) {
         seeds = Number(e.currentTarget.value);
       });
-
-      var randomButton = document.querySelector('button#randomize')
-      randomButton.addEventListener('click', this.random.bind(this));
-
-      var saveButton = document.querySelector('button#save');
+      randomButton.addEventListener('click', this.randomize.bind(this));
       saveButton.addEventListener('click', this.saveSnap.bind(this));
-
-      var hideButton = document.querySelector('button#hide');
       hideButton.addEventListener('click', this.toggleControls.bind(this));
+    },
+
+    setupControlValues : function() {
+      strokeInput.checked = stroke;
+      fillInput.checked = fill;
+
+      for (var i = 0; i < waveTypeInputs.length; i++) {
+        var el = waveTypeInputs[i]
+        el.checked = el.value == waveform;
+      }
+
+      updateInput.value = updateInterval;
+      drawInput.value = drawInterval;
+      sizeInput.value = N;
+      monochromeInput.checked = monochrome;
+      colorInput.value = monochromeHue;
+      speedInput.value = speed;
+      bg_alphaInput.value = bg_alpha;
+      fg_alphaInput.value = fg_alpha;
+      seedsInput.value = seeds;
+    },
+
+    setupControls: function() {
+      this.setupControlValues();
+      this.setupControlListeners();
     },
 
     saveSnap : function() {
@@ -300,7 +306,7 @@ module.exports = function(canvas) {
 
     },
 
-
+    // Set random seeds
     random : function () {
       Field = initializeField();
       context.clearRect(0, 0, width, height);
@@ -309,12 +315,36 @@ module.exports = function(canvas) {
         var y = Math.floor(Math.random() * N)
 
         Field[x][y] = 1;
-      }
-
-
-        
+      }  
     },
 
+
+    // set random settings
+    randomize : function () {
+      N = 2 + Math.floor(Math.random() * 100);
+      stroke = (Math.random() >= 0.5);
+      if (!stroke) {
+        fill = true;
+      } else {
+        fill = (Math.random() >= 0.5);
+      }
+
+      colorCounter = 0;
+      counterAngle = 0;
+      speed = 1+ Math.floor(Math.random() * 1000);
+      fg_alpha = 1 + Math.floor(Math.random() * 100);
+      bg_alpha = 1 + Math.floor(Math.random() * 100);;
+      seeds = 1 + Math.floor(Math.random() * 10);
+      updateInterval = 10 + Math.floor(Math.random() * 100);
+      drawInterval = 10 + Math.floor(Math.random() * 100);
+      waveform = ['triangle', 'saw', 'sine'][Math.floor(Math.random() * 2)]
+      monochrome = (Math.random() >= 0.5);
+      monochromeHue = 100 * Math.random();
+
+      this.setupControlValues();
+      this.setSize();
+      this.random();
+    },
 
     drawTriangle: function(x, y, lEdge, baseY, translate) {
       context.beginPath();
