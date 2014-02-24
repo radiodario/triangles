@@ -19,7 +19,6 @@ a {
   position: absolute;
   padding: 1em;
   margin: auto;
-  width: 300px;
   text-align: center;
   z-index: 2;
   background-color: rgba(0, 0, 0, 0.7);
@@ -33,11 +32,16 @@ a {
     right: 0;
   }
 }
+@media screen and (min-width: 800px) {
+  .title {
+    width: 300px;
+  }
+}
 .title.hide {
-  width: 50px;
-  height: 100px;
-  top: -80px;
+  width: auto;
+  top: 0;
   left: 0;
+  padding: 0;
 }
 .title.hide h1,
 .title.hide p,
@@ -46,9 +50,6 @@ a {
 }
 .title.hide button#hide {
   display: block;
-  position: absolute;
-  bottom: 0;
-  left: 0;
 }
 button {
   background-color: transparent;
