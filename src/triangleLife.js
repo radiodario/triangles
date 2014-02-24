@@ -1,8 +1,8 @@
 hslToRgb = require('./hslToRgb');
-
+require('./requestAnimationFrame');
 
 module.exports = function(canvas) {
-  var N = 80;
+  var N = 50;
   var context = canvas.getContext('2d');
   var stroke = false;
   var fill = true;
@@ -17,8 +17,14 @@ module.exports = function(canvas) {
   var bg_alpha = 20;
   var seeds = 5;
   var updateInterval = 20;
+  var lastUpdate = 0;
+  var lastDraw = 0;
+  var drawInterval = 60;
   var waveform = 'triangle'
-  
+  var animId = null;
+  var monochrome = true;
+  var monochromeHue = 0;
+
   function initializeField () {
     var field = new Array(N)
     for (var i = 0; i < N; i++) {
@@ -43,16 +49,14 @@ module.exports = function(canvas) {
 
     setup: function() {
 
+      cancelAnimationFrame(animId);
       // setup listeners
       canvas.addEventListener('click', this.random.bind(this));
 
       this.setupControls();
 
 
-      var kH = 2 * height / (N * Math.sqrt(2));
-      var kW = 2 * width / N;
-
-      edge = Math.max(kH, kW);
+      this.setSize();
 
       this.init();
 
@@ -61,7 +65,47 @@ module.exports = function(canvas) {
 
     init: function() {
       this.random();
+      animId = requestAnimationFrame(this.run.bind(this));
     },
+
+
+    resize : function() {
+      width = canvas.width = window.innerWidth + 20;
+      height = canvas.height = window.innerHeight;
+
+      this.setSize();
+
+
+    },
+
+    setSize: function() {
+
+
+
+      var kH = 2 * height / (N * Math.sqrt(2));
+      var kW = 2 * width / N;
+
+      edge = Math.max(kH, kW);
+    },
+
+    run: function(timestamp) {
+      if (timestamp > lastUpdate + (1000/updateInterval)) {
+        this.update();
+        lastUpdate = timestamp;
+      }
+
+      if (timestamp > lastDraw + (1000/drawInterval)) {
+        this.draw();
+        lastDraw = timestamp;
+      }
+
+
+      animId = requestAnimationFrame(this.run.bind(this));
+
+
+    },
+
+
 
     setupControls: function() {
       var strokeInput = document.querySelector('input[name=stroke]');
@@ -75,7 +119,7 @@ module.exports = function(canvas) {
         fill = fillInput.checked
       })
 
-
+      var that = this;
       var waveTypeInputs = document.querySelectorAll('input[name=wave]');
 
       for (var i = 0; i < waveTypeInputs.length; i++) {
@@ -88,6 +132,31 @@ module.exports = function(canvas) {
       updateInput.value = updateInterval;
       updateInput.addEventListener('change', function(e) {
         updateInterval = Number(e.currentTarget.value);
+      });
+      var drawInput = document.querySelector('input[name=drawInterval]')
+      drawInput.value = drawInterval;
+      drawInput.addEventListener('change', function(e) {
+        drawInterval = Number(e.currentTarget.value);
+      });
+
+      var sizeInput = document.querySelector('input[name=triangleSize]');
+      sizeInput.value = N;
+      sizeInput.addEventListener('change', function (e) {
+        N = Number(e.currentTarget.value);
+        that.setSize();
+        that.random();
+      })
+
+      var monochromeInput = document.querySelector('input[name=monochrome]')
+      monochromeInput.checked = monochrome;
+      monochromeInput.addEventListener('change', function (e) {
+        monochrome = monochromeInput.checked;
+      })
+
+      var colorInput = document.querySelector('input[name=color]')
+      colorInput.value = monochromeHue;
+      colorInput.addEventListener('change', function(e) {
+        monochromeHue = Number(e.currentTarget.value);
       });
 
       var speedInput = document.querySelector('input[name=speed]')
@@ -284,24 +353,29 @@ module.exports = function(canvas) {
 
     setColors: function(x, y) {
       
-      counterIncrease = Math.PI / speed;
-      counterAngle += counterIncrease;
-      // sin
-      switch (waveform) {
-        case 'sine':
-          colorCounter = 1 + (Math.sin(counterAngle)/2);
-          break;
-        case 'triangle':
-          colorCounter = Math.abs((counterAngle % 2) - 1);
-          break;
-        case 'saw':
-          colorCounter = Math.abs((counterAngle % 1))
-          break;
+      if (monochrome) {
+        var color = hslToRgb(monochromeHue * 0.01, 1, 0.5, fg_alpha / 100);
+      } else {
+        counterIncrease = Math.PI / speed;
+        counterAngle += counterIncrease;
+        // sin
+        switch (waveform) {
+          case 'sine':
+            colorCounter = 1 + (Math.sin(counterAngle)/2);
+            break;
+          case 'triangle':
+            colorCounter = Math.abs((counterAngle % 2) - 1);
+            break;
+          case 'saw':
+            colorCounter = Math.abs((counterAngle % 1))
+            break;
+        }
+        
+
+
+        var color = hslToRgb(colorCounter, 1, 0.5, fg_alpha / 100);
       }
-      
 
-
-      var color = hslToRgb(colorCounter, 1, 0.5, fg_alpha / 100);
       
       if (fill) {
         context.fillStyle = color;
