@@ -9,14 +9,16 @@ canvas {
 body {
   color: white;
   font-family: Helvetica, arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 a {
   color: cyan;
 }
 .title {
-  position: fixed;
+  position: absolute;
+  padding: 1em;
   margin: auto;
-  height: 430px;
   width: 300px;
   text-align: center;
   z-index: 2;

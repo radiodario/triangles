@@ -11,17 +11,31 @@
     <h1 id="title">triangles</h1>
     <p>by <a href="http://twitter.com/radiodario">@radiodario</a></p>
     <div class="controls">
-      Sim Speed: <input type="range" name="updateInterval" min="1" max="100">
+      Draw Speed: <input type="range" name="drawInterval" min="1" max="100">
+      <br>
+      Life Speed: <input type="range" name="updateInterval" min="1" max="100">
+      <br>
+      Triangle Size: <input type="range" name="triangleSize" min="2" max="1000">
       <br>
       <br>
       <input type="checkbox" name="stroke"> stroke
       <input type="checkbox" name="fill"> fill
       <br>
       <br>
+
+      <input type="checkbox" name="monochrome" checked> Monochrome 
+      <br>
+      Color: <input type="range" name="color" min="1" max="100">
+      <br>
+      <br>
+      Color Update waveform:
+      <br>
       <input type="radio" name="wave" value="sine"> ∿
       <input type="radio" name="wave" value="triangle" checked> ∧
       <input type="radio" name="wave" value="saw"> saw
       <br>
+
+      
       <br>
       Col Speed: <input type="range" name="speed" min="1" max="20000">
       <br>
