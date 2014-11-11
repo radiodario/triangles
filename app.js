@@ -131,15 +131,13 @@ module.exports = function(canvas) {
 
 
   function initializeField () {
-    var field = new Array(N)
-    for (var i = 0; i < N; i++) {
-      field[i] = new Array(N);
-      for (var j = 0; j < N; j++) {
-        field[i][j] = 0;
-      }
+
+    var field = [];
+    for (var i = 0; i < N*N; i++) {
+      field[i] = 0;
     }
     return field;
-  } 
+  }
 
   var Field = initializeField();
 
@@ -153,18 +151,16 @@ module.exports = function(canvas) {
 
 
     setup: function() {
-
+      // stop all animations
       cancelAnimationFrame(animId);
       // setup listeners
       canvas.addEventListener('click', this.random.bind(this));
 
       this.setupControls();
-
-
+      // calculate the side of the triangles;
       this.setSize();
 
       this.init();
-
 
     },
 
@@ -184,9 +180,7 @@ module.exports = function(canvas) {
     },
 
     setSize: function() {
-
-
-
+      // triangle height and width
       var kH = 2 * height / (N * Math.sqrt(2));
       var kW = 2 * width / N;
 
@@ -306,49 +300,52 @@ module.exports = function(canvas) {
     update: function() {
       var LN; // live neighbors
       var type; // 0, 1, 2 or 3
-      var x, y, val;
+      var i, x, y, l, val;
       var NextField = initializeField();
 
 
-      for (y = 0; y < N; y++) {
-        for (x = 0; x < N; x++) {
-          LN = 0;
-          
-          // left guy
-          if (x > 0 && Field[x-1][y] > 0) 
-            LN++
-          // right guy
-          if (x < (N-1) && Field[x+1][y] > 0) 
+      for(i = 0, l = Field.length; i < l; i++) {
+
+        x = i % N;
+        y = i / N | 0;
+
+        LN = 0;
+
+        // left guy
+        if (x > 0 && Field[i-1] > 0)
+          LN++
+        // right guy
+        if (x < (N-1) && Field[i+1] > 0)
+          LN++;
+
+        type = (y % 2 << 1) + x % 2;
+
+        if (type == 0 || type == 3) {
+          if (y > 0 && Field[i-N] > 0)
             LN++;
-
-          type = (y % 2 << 1) + x % 2
-
-          if (type == 0 || type == 3) {
-            if (y > 0 && Field[x][y-1] > 0) 
-              LN++;
-          } else {
-            if (y < (N-1) && Field[x][y+1] > 0)
-              LN++;
-          }
-
-          val = NextField[x][y];
-
-          if (val > 0.5) {
-            if (LN == 2) {
-              NextField[x][y] = val + 0.2;
-            } else {
-              NextField[x][y] = 0
-            }
-          } else {
-            if (LN == 1) {
-              NextField[x][y] = 1;
-            } else {
-              NextField[x][y] = val - 0.1
-            }
-          }
-
+        } else {
+          if (y < (N-1) && Field[i+N] > 0)
+            LN++;
         }
 
+        val = Field[i];
+
+        // live cell
+        if (val > 0) {
+          if (LN == 2) {
+            val += 0.2;
+          } else {
+            val = 0;
+          }
+        } else {
+          if (LN == 1) {
+            val = 1;
+          } else {
+            val -= 0.1;
+          }
+        }
+
+        NextField[i] = val;
 
       }
 
@@ -363,27 +360,25 @@ module.exports = function(canvas) {
       context.fillRect(0, 0, width, height);
 
 
-      var x, y, 
-          baseY, 
-          lEdge = edge * SQRT2 / 2;
+      var x, y, i, l,
+          baseY,
+          lEdge = edge * Math.cos(Math.PI/6);
 
       var translate = {
         x: 0,//(width - N * edge / 2 ) / 2,
         y: 0//(height - N * edge * SQRT2 / 2) / 2
       }
 
-      for (y = 0; y < N; y++) {
-        for (x = 0; x < N; x++) {
+      for(i = 0, l = Field.length; i < l; i++) {
 
-          if (Field[x][y] > 0) {
-            baseY = y * lEdge
-            this.drawTriangle(x, y, lEdge, baseY, translate)
+        if (Field[i] < 0) continue;
 
+        x = i % N;
+        y = i / N | 0;
 
+        baseY = y * lEdge
+        this.drawTriangle(x, y, lEdge, baseY, translate)
 
-
-          }
-        }
       }
 
 
@@ -396,11 +391,10 @@ module.exports = function(canvas) {
       Field = initializeField();
       context.clearRect(0, 0, width, height);
       for (var i = 0; i < seeds; i++) {
-        var x = Math.floor(Math.random() * N)
-        var y = Math.floor(Math.random() * N)
+        var idx = Math.floor(Math.random() * N * N)
 
-        Field[x][y] = 1;
-      }  
+        Field[idx] = 1;
+      }
     },
 
 
@@ -435,7 +429,7 @@ module.exports = function(canvas) {
       context.beginPath();
 
       var type = (y%2 << 1) + x%2 ;
-      
+
       switch (type) {
         case 0:
           context.moveTo( ((x+0) * edge/2) + translate.x, baseY + translate.y);
@@ -467,7 +461,9 @@ module.exports = function(canvas) {
     },
 
     setColors: function(x, y) {
-      
+
+      var val = Field[x + (N * y)];
+
       if (monochrome) {
         var color = hslToRgb(monochromeHue * 0.01, 1, 0.5, fg_alpha / 100);
       } else {
@@ -485,13 +481,13 @@ module.exports = function(canvas) {
             colorCounter = Math.abs((counterAngle % 1))
             break;
         }
-        
+
 
 
         var color = hslToRgb(colorCounter, 1, 0.5, fg_alpha / 100);
       }
 
-      
+
       if (fill) {
         context.fillStyle = color;
         context.fill();
