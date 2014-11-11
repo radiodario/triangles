@@ -1,68 +1,39 @@
 hslToRgb = require('./hslToRgb');
-require('./requestAnimationFrame');
+
+var dat = require('dat.gui');
+
 
 module.exports = function(canvas) {
-  var N = 50;
   var context = canvas.getContext('2d');
-  var stroke = false;
-  var fill = true;
   var edge = 0;
   var width = canvas.width;
   var height = canvas.height
   var SQRT2 = Math.sqrt(2);
   var colorCounter = 0;
   var counterAngle = 0;
-  var speed = 1000;
-  var fg_alpha = 40;
-  var bg_alpha = 20;
-  var seeds = 5;
-  var updateInterval = 20;
   var lastUpdate = 0;
   var lastDraw = 0;
-  var drawInterval = 60;
-  var waveform = 'triangle'
   var animId = null;
-  var monochrome = true;
-  var monochromeHue = 0;
 
-
-  //========= CONTROLS
-  var strokeInput = document.querySelector('input[name=stroke]');
-  var fillInput = document.querySelector('input[name=fill]');
-  var waveTypeInputs = document.querySelectorAll('input[name=wave]');
-  var updateInput = document.querySelector('input[name=updateInterval]');
-  var drawInput = document.querySelector('input[name=drawInterval]');
-  var sizeInput = document.querySelector('input[name=triangleSize]');
-  var monochromeInput = document.querySelector('input[name=monochrome]');
-  var colorInput = document.querySelector('input[name=color]');
-  var speedInput = document.querySelector('input[name=speed]');
-  var bg_alphaInput = document.querySelector('input[name=bg_alpha]');
-  var fg_alphaInput = document.querySelector('input[name=fg_alpha]');
-  var seedsInput = document.querySelector('input[name=seeds]');
-  var randomButton = document.querySelector('button#randomize')
-  var saveButton = document.querySelector('button#save');
-  var hideButton = document.querySelector('button#hide');
-
-
-
-  function initializeField () {
-
-    var field = [];
-    for (var i = 0; i < N*N; i++) {
-      field[i] = 0;
-    }
-    return field;
-  }
-
-  var Field = initializeField();
+  var Field;
 
   var debug = document.querySelector('p');
 
   return {
 
-    updateInterval: function() {
-      return 1000 / updateInterval;
-    },
+    // settings
+    N: 50,
+    stroke: false,
+    fill: true,
+    speed: 1000,
+    fg_alpha: 40,
+    bg_alpha: 20,
+    seeds: 5,
+    updateInterval: 60,
+    drawInterval: 60,
+    waveform: 'triangle',
+    monochrome: true,
+    monochromeHue: 0,
 
 
     setup: function() {
@@ -71,15 +42,23 @@ module.exports = function(canvas) {
       // setup listeners
       canvas.addEventListener('click', this.random.bind(this));
 
-      this.setupControls();
-      // calculate the side of the triangles;
       this.setSize();
 
       this.init();
 
     },
 
+    initializeField: function() {
+      var field = [];
+      var allCells = this.N*this.N;
+      for (var i = 0; i < allCells; i++) {
+        field[i] = 0;
+      }
+      return field;
+    },
+
     init: function() {
+      Field = this.initializeField()
       this.random();
       animId = requestAnimationFrame(this.run.bind(this));
     },
@@ -96,101 +75,24 @@ module.exports = function(canvas) {
 
     setSize: function() {
       // triangle height and width
-      var kH = 2 * height / (N * Math.sqrt(2));
-      var kW = 2 * width / N;
+      var kH = 2 * height / (this.N * Math.sqrt(2));
+      var kW = 2 * width / this.N;
 
       edge = Math.max(kH, kW);
     },
 
     run: function(timestamp) {
-      if (timestamp > lastUpdate + (1000/updateInterval)) {
+      if (timestamp > lastUpdate + (1000/this.updateInterval)) {
         this.update();
         lastUpdate = timestamp;
       }
 
-      if (timestamp > lastDraw + (1000/drawInterval)) {
+      if (timestamp > lastDraw + (1000/this.drawInterval)) {
         this.draw();
         lastDraw = timestamp;
       }
 
-
       animId = requestAnimationFrame(this.run.bind(this));
-
-
-    },
-
-    setupControlListeners : function() {
-      strokeInput.addEventListener('change', function(e) {
-        stroke = strokeInput.checked
-      });
-      fillInput.addEventListener('change', function(e) {
-        fill = fillInput.checked
-      });
-
-      for (var i = 0; i < waveTypeInputs.length; i++) {
-        waveTypeInputs[i].addEventListener('click', function(e) {
-          waveform = e.currentTarget.value;
-        });
-      }
-      updateInput.addEventListener('change', function(e) {
-        updateInterval = Number(e.currentTarget.value);
-      });
-      drawInput.addEventListener('change', function(e) {
-        drawInterval = Number(e.currentTarget.value);
-      });
-
-      var that = this;
-      sizeInput.addEventListener('change', function (e) {
-        N = Number(e.currentTarget.value);
-        that.setSize();
-        that.random();
-      })
-      monochromeInput.addEventListener('change', function (e) {
-        monochrome = monochromeInput.checked;
-      })
-      colorInput.addEventListener('change', function(e) {
-        monochromeHue = Number(e.currentTarget.value);
-      });
-      speedInput.addEventListener('change', function(e) {
-        speed = Number(e.currentTarget.value);
-      });
-      bg_alphaInput.addEventListener('change', function(e) {
-        bg_alpha = Number(e.currentTarget.value)
-      });
-      fg_alphaInput.addEventListener('change', function(e) {
-        fg_alpha = Number(e.currentTarget.value)
-      });
-      seedsInput.addEventListener('click', function(e) {
-        seeds = Number(e.currentTarget.value);
-      });
-      randomButton.addEventListener('click', this.randomize.bind(this));
-      saveButton.addEventListener('click', this.saveSnap.bind(this));
-      hideButton.addEventListener('click', this.toggleControls.bind(this));
-    },
-
-    setupControlValues : function() {
-      strokeInput.checked = stroke;
-      fillInput.checked = fill;
-
-      for (var i = 0; i < waveTypeInputs.length; i++) {
-        var el = waveTypeInputs[i]
-        el.checked = el.value == waveform;
-      }
-
-      updateInput.value = updateInterval;
-      drawInput.value = drawInterval;
-      sizeInput.value = N;
-      monochromeInput.checked = monochrome;
-      colorInput.value = monochromeHue;
-      speedInput.value = speed;
-      bg_alphaInput.value = bg_alpha;
-      fg_alphaInput.value = fg_alpha;
-      seedsInput.value = seeds;
-    },
-
-    setupControls: function() {
-      this.setupControlValues();
-      this.setupControlListeners();
     },
 
     saveSnap : function() {
@@ -216,8 +118,9 @@ module.exports = function(canvas) {
       var LN; // live neighbors
       var type; // 0, 1, 2 or 3
       var i, x, y, l, val;
-      var NextField = initializeField();
+      var NextField = this.initializeField();
 
+      var N = this.N;
 
       for(i = 0, l = Field.length; i < l; i++) {
 
@@ -271,10 +174,10 @@ module.exports = function(canvas) {
     },
 
     draw: function() {
-      context.fillStyle = 'rgba(0, 0, 0, ' + bg_alpha/100 +')';
+      context.fillStyle = 'rgba(0, 0, 0, ' + this.bg_alpha/100 +')';
       context.fillRect(0, 0, width, height);
 
-
+      var N = this.N;
       var x, y, i, l,
           baseY,
           lEdge = edge * Math.cos(Math.PI/6);
@@ -303,9 +206,10 @@ module.exports = function(canvas) {
 
     // Set random seeds
     random : function () {
-      Field = initializeField();
+      Field = this.initializeField();
       context.clearRect(0, 0, width, height);
-      for (var i = 0; i < seeds; i++) {
+      var N = this.N;
+      for (var i = 0; i < this.seeds; i++) {
         var idx = Math.floor(Math.random() * N * N)
 
         Field[idx] = 1;
@@ -315,27 +219,26 @@ module.exports = function(canvas) {
 
     // set random settings
     randomize : function () {
-      N = 2 + Math.floor(Math.random() * 100);
-      stroke = (Math.random() >= 0.5);
-      if (!stroke) {
-        fill = true;
+      this.N = 2 + Math.floor(Math.random() * 100);
+      this.stroke = (Math.random() >= 0.5);
+      if (!this.stroke) {
+        this.fill = true;
       } else {
-        fill = (Math.random() >= 0.5);
+        this.fill = (Math.random() >= 0.5);
       }
 
-      colorCounter = 0;
-      counterAngle = 0;
-      speed = 1+ Math.floor(Math.random() * 1000);
-      fg_alpha = 1 + Math.floor(Math.random() * 100);
-      bg_alpha = 1 + Math.floor(Math.random() * 100);;
-      seeds = 1 + Math.floor(Math.random() * 10);
-      updateInterval = 10 + Math.floor(Math.random() * 100);
-      drawInterval = 10 + Math.floor(Math.random() * 100);
-      waveform = ['triangle', 'saw', 'sine'][Math.floor(Math.random() * 2)]
-      monochrome = (Math.random() >= 0.5);
-      monochromeHue = 100 * Math.random();
+      this.colorCounter = 0;
+      this.counterAngle = 0;
+      this.speed = 1+ Math.floor(Math.random() * 1000);
+      this.fg_alpha = 1 + Math.floor(Math.random() * 100);
+      this.bg_alpha = 1 + Math.floor(Math.random() * 100);;
+      this.seeds = 1 + Math.floor(Math.random() * 10);
+      this.updateInterval = 10 + Math.floor(Math.random() * 100);
+      this.drawInterval = 10 + Math.floor(Math.random() * 100);
+      this.waveform = ['triangle', 'saw', 'sine'][Math.floor(Math.random() * 2)]
+      this.monochrome = (Math.random() >= 0.5);
+      this.monochromeHue = 100 * Math.random();
 
-      this.setupControlValues();
       this.setSize();
       this.random();
     },
@@ -377,17 +280,23 @@ module.exports = function(canvas) {
 
     setColors: function(x, y) {
 
-      var val = Field[x + (N * y)];
+      // var val = Field[x + (N * y)];
 
-      if (monochrome) {
-        var color = hslToRgb(monochromeHue * 0.01, 1, 0.5, fg_alpha / 100);
+      if (this.monochrome) {
+        var color = hslToRgb(this.monochromeHue/360, 1, 0.5, this.fg_alpha / 100);
       } else {
+
+        var speed = 1001 - this.speed;
+
         counterIncrease = Math.PI / speed;
         counterAngle += counterIncrease;
         // sin
-        switch (waveform) {
-          case 'sine':
+        switch (this.waveform) {
+          case 'sin':
             colorCounter = 1 + (Math.sin(counterAngle)/2);
+            break;
+          case 'cos' :
+            colorCounter = 1 + (Math.cos(counterAngle)/2);
             break;
           case 'triangle':
             colorCounter = Math.abs((counterAngle % 2) - 1);
@@ -399,15 +308,15 @@ module.exports = function(canvas) {
 
 
 
-        var color = hslToRgb(colorCounter, 1, 0.5, fg_alpha / 100);
+        var color = hslToRgb(colorCounter, 1, 0.5, this.fg_alpha / 100);
       }
 
 
-      if (fill) {
+      if (this.fill) {
         context.fillStyle = color;
         context.fill();
       }
-      if (stroke){
+      if (this.stroke){
         context.strokeStyle = color
         context.stroke();
       }
