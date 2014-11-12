@@ -17,7 +17,7 @@ var setup = function() {
   var gui = new dat.GUI();
 
 
-  var c = gui.add(tL, 'N').name("Grid Size").min(0).max(100).step(1).listen();
+  var c = gui.add(tL, 'N').name("Grid Size").min(0).max(500).step(1).listen();
 
   c.onChange(function(val) {
     tL.setSize();
@@ -31,7 +31,12 @@ var setup = function() {
 
   gui.add(tL, 'drawInterval').name("Draw Speed").min(1).max(120).listen();
   gui.add(tL, 'updateInterval').name("Update Speed").min(1).max(120).listen();
-  gui.add(tL, 'seeds').name("Seeds").min(1).max(10).step(1).listen();
+  gui.add(tL, 'seeds').name("Seeds").min(1).max(50000).step(1).listen();
+  var ruleField = gui.add(tL, 'rule').name("Rule (El,Eh/Fl,Fh)");
+
+  ruleField.onFinishChange(function() {
+    tL.parseRule();
+  })
 
   gui.add(tL, 'stroke').listen();
   gui.add(tL, 'fill').listen();
