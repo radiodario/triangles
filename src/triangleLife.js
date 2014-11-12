@@ -30,7 +30,7 @@ module.exports = function(canvas) {
     speed: 1000,
     fg_alpha: 40,
     bg_alpha: 20,
-    seeds: 50,
+    seeds: 50*50/2,
     updateInterval: 60,
     drawInterval: 60,
     waveform: 'triangle',
@@ -287,7 +287,7 @@ module.exports = function(canvas) {
 
 
       }
-
+      console.log("Parsed Rule:", this.rule, "into", settings);
       this.lifeSettings = settings;
 
     },

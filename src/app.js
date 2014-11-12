@@ -31,10 +31,31 @@ var setup = function() {
 
   gui.add(tL, 'drawInterval').name("Draw Speed").min(1).max(120).listen();
   gui.add(tL, 'updateInterval').name("Update Speed").min(1).max(120).listen();
-  gui.add(tL, 'seeds').name("Seeds").min(1).max(50000).step(1).listen();
-  var ruleField = gui.add(tL, 'rule').name("Rule (El,Eh/Fl,Fh)");
+  var seeds = gui.add(tL, 'seeds').name("Seeds").min(1).max(25000).step(1).listen();
 
-  ruleField.onFinishChange(function() {
+
+  var rulePresets = [
+    "2/1",
+    "2/2",
+    "*2/3",
+    "*2,3/4,5",
+    "*2,3/4,6",
+    "*3,4/4,5",
+    "*3,4/4,6",
+    "*4,5/4,6",
+    "*4,6/4,4"
+  ]
+
+  var ruleSelect = gui.add(tL, 'rule', rulePresets).name("Game Rules").listen();
+
+  ruleSelect.onChange(function() {
+    tL.parseRule();
+  });
+
+  var customRuleField = gui.add(tL, 'rule').name("Custom Rule").listen();
+
+  customRuleField.onFinishChange(function(val) {
+    tL.rule = val;
     tL.parseRule();
   })
 
