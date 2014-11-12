@@ -16,6 +16,7 @@ var setup = function() {
 
   var gui = new dat.GUI();
 
+  var startN = 50
 
   var c = gui.add(tL, 'N').name("Grid Size").min(0).max(500).step(1).listen();
 
@@ -37,12 +38,14 @@ var setup = function() {
   var rulePresets = [
     "2/1",
     "2/2",
+    "1,2/4,6",
     "*2/3",
+    "*2,3/3,3",
     "*2,3/4,5",
     "*2,3/4,6",
     "*3,4/4,5",
     "*3,4/4,6",
-    "*4,5/4,6",
+    "**4,5/4,6",
     "*4,6/4,4"
   ]
 
