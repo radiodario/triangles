@@ -38,6 +38,7 @@ var setup = function() {
   var rulePresets = [
     "2/1",
     "2/2",
+    "0,1/3,3",
     "1,2/4,6",
     "*2/3",
     "*2,3/3,3",
@@ -65,10 +66,11 @@ var setup = function() {
   gui.add(tL, 'stroke').listen();
   gui.add(tL, 'fill').listen();
 
-  gui.add(tL, 'monochrome').name("Monochrome").listen();
-  gui.add(tL, 'monochromeHue').name("Hue").min(0).max(360).listen();
   gui.add(tL, 'fg_alpha').name("FG Alpha").min(0).max(100).listen();
   gui.add(tL, 'bg_alpha').name("BG Alpha").min(0).max(100).listen();
+  gui.add(tL, 'monochrome').name("Monochrome").listen();
+  gui.add(tL, 'monochromeHue').name("Hue").min(0).max(360).listen();
+  gui.add(tL, 'cycleHue').name("Cycle Hue").listen();
 
   gui.add(tL, 'speed').name("Colour Speed").min(1).max(1000).listen();
   gui.add(tL, 'waveform', ['sin', 'cos', 'triangle', 'saw']).name("Colour Waveform").listen();

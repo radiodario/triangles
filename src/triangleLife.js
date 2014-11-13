@@ -36,6 +36,7 @@ module.exports = function(canvas) {
     waveform: 'triangle',
     monochrome: true,
     monochromeHue: 0,
+    cycleHue: false,
     rule : "2/1",
 
     setup: function() {
@@ -306,6 +307,11 @@ module.exports = function(canvas) {
         y: 0//(height - N * edge * SQRT2 / 2) / 2
       }
 
+
+
+      if (this.cycleHue)
+          this.monochromeHue = (this.monochromeHue + (360/this.speed)) % 360;
+
       for(i = 0, l = Field.length; i < l; i++) {
 
         if (Field[i] <= 0) continue;
@@ -397,12 +403,12 @@ module.exports = function(canvas) {
     setColors: function(x, y) {
 
       // var val = Field[x + (N * y)];
+      var speed = 1001 - this.speed;
 
       if (this.monochrome) {
+
         var color = hslToRgb(this.monochromeHue/360, 1, 0.5, this.fg_alpha / 100);
       } else {
-
-        var speed = 1001 - this.speed;
 
         counterIncrease = Math.PI / speed;
         counterAngle += counterIncrease;
