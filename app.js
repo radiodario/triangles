@@ -3702,6 +3702,7 @@ var setup = function() {
   var rulePresets = [
     "2/1",
     "2/2",
+    "0,1/3,3",
     "1,2/4,6",
     "*2/3",
     "*2,3/3,3",
@@ -3729,10 +3730,11 @@ var setup = function() {
   gui.add(tL, 'stroke').listen();
   gui.add(tL, 'fill').listen();
 
-  gui.add(tL, 'monochrome').name("Monochrome").listen();
-  gui.add(tL, 'monochromeHue').name("Hue").min(0).max(360).listen();
   gui.add(tL, 'fg_alpha').name("FG Alpha").min(0).max(100).listen();
   gui.add(tL, 'bg_alpha').name("BG Alpha").min(0).max(100).listen();
+  gui.add(tL, 'monochrome').name("Monochrome").listen();
+  gui.add(tL, 'monochromeHue').name("Hue").min(0).max(360).listen();
+  gui.add(tL, 'cycleHue').name("Cycle Hue").listen();
 
   gui.add(tL, 'speed').name("Colour Speed").min(1).max(1000).listen();
   gui.add(tL, 'waveform', ['sin', 'cos', 'triangle', 'saw']).name("Colour Waveform").listen();
@@ -3838,6 +3840,7 @@ module.exports = function(canvas) {
     waveform: 'triangle',
     monochrome: true,
     monochromeHue: 0,
+    cycleHue: false,
     rule : "2/1",
 
     setup: function() {
@@ -4108,6 +4111,11 @@ module.exports = function(canvas) {
         y: 0//(height - N * edge * SQRT2 / 2) / 2
       }
 
+
+
+      if (this.cycleHue)
+          this.monochromeHue = (this.monochromeHue + (360/this.speed)) % 360;
+
       for(i = 0, l = Field.length; i < l; i++) {
 
         if (Field[i] <= 0) continue;
@@ -4199,12 +4207,12 @@ module.exports = function(canvas) {
     setColors: function(x, y) {
 
       // var val = Field[x + (N * y)];
+      var speed = 1001 - this.speed;
 
       if (this.monochrome) {
+
         var color = hslToRgb(this.monochromeHue/360, 1, 0.5, this.fg_alpha / 100);
       } else {
-
-        var speed = 1001 - this.speed;
 
         counterIncrease = Math.PI / speed;
         counterAngle += counterIncrease;
