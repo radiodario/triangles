@@ -341,7 +341,7 @@ export default function (canvas: HTMLCanvasElement) {
 
 
       if (this.settings.cycleHue)
-          this.settings.monochromeHue = (this.settings.monochromeHue + (360/this.settings.speed)) % 360;
+          this.settings.monochromeHue = (this.settings.monochromeHue + (360/(1001-this.settings.speed))) % 360;
 
       for(i = 0, l = Field.length; i < l; i++) {
 
@@ -445,7 +445,7 @@ export default function (canvas: HTMLCanvasElement) {
     setColors: function(x: any, y: any) {
 
       // var val = Field[x + (N * y)];
-      var speed = 1001 - this.speed;
+      var speed = 1001 - this.settings.speed;
 
       if (this.settings.monochrome) {
 
