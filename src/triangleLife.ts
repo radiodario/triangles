@@ -13,48 +13,62 @@ interface ILifeRuleSettings {
   };
 }
 
-export default function (canvas: HTMLCanvasElement) {
-  var context = canvas.getContext('2d');
-  var edge = 0;
-  var width = canvas.width;
-  var height = canvas.height
-  var SQRT2 = Math.sqrt(2);
-  var colorCounter = 0;
-  var counterAngle = 0;
-  var counterIncrease = 0;
-  var lastUpdate = 0;
-  var lastDraw = 0;
-  var animId: ReturnType<typeof requestAnimationFrame> = null;
+export interface ISettings {
+  N: number,
+  stroke: boolean,
+  fill: boolean,
+  speed: number,
+  fg_alpha: number,
+  bg_alpha: number,
+  seeds: number,
+  updateInterval: number,
+  drawInterval: number,
+  waveform: 'triangle' | 'sine' | 'saw',
+  monochrome: boolean,
+  monochromeHue: number,
+  cycleHue: boolean,
+  rule : string,
+}
 
-  var rule = "2/1";
+export default function (canvas: HTMLCanvasElement) {
+  const SQRT2 = Math.sqrt(2);
+  const context = canvas.getContext('2d');
+  let edge = 0;
+  let width = canvas.width;
+  let height = canvas.height
+  let colorCounter = 0;
+  let counterAngle = 0;
+  let counterIncrease = 0;
+  let lastUpdate = 0;
+  let lastDraw = 0;
+  let animId: ReturnType<typeof requestAnimationFrame> = null;
 
   var Field: any[];
 
-  var debug = document.querySelector('p');
-
   return {
-
-    // settings
-    N: 50,
-    stroke: false,
-    fill: true,
-    speed: 1000,
-    fg_alpha: 40,
-    bg_alpha: 20,
-    seeds: 50*50/2,
-    updateInterval: 60,
-    drawInterval: 60,
-    waveform: 'triangle',
-    monochrome: true,
-    monochromeHue: 0,
-    cycleHue: false,
-    rule : "2/1",
+    settings: {
+      // settings
+      N: 50,
+      stroke: false,
+      fill: true,
+      speed: 1000,
+      fg_alpha: 40,
+      bg_alpha: 20,
+      seeds: 50*50/2,
+      updateInterval: 60,
+      drawInterval: 60,
+      waveform: 'triangle',
+      monochrome: true,
+      monochromeHue: 0,
+      cycleHue: false,
+      rule : "2/1",
+    } as ISettings,
 
     setup: function() {
       // stop all animations
       cancelAnimationFrame(animId);
       // setup listeners
-      canvas.addEventListener('click', this.random.bind(this));
+      canvas.addEventListener('click', () => this.random());
 
       this.setSize();
 
@@ -64,7 +78,7 @@ export default function (canvas: HTMLCanvasElement) {
 
     initializeField: function() {
       var field = [];
-      var allCells = this.N*this.N;
+      var allCells = this.settings.N * this.settings.N;
       for (var i = 0; i < allCells; i++) {
         field[i] = 0;
       }
@@ -78,7 +92,6 @@ export default function (canvas: HTMLCanvasElement) {
       animId = requestAnimationFrame(this.run.bind(this));
     },
 
-
     resize : function() {
       width = canvas.width = window.innerWidth + 20;
       height = canvas.height = window.innerHeight;
@@ -88,19 +101,19 @@ export default function (canvas: HTMLCanvasElement) {
 
     setSize: function() {
       // triangle height and width
-      var kH = 2 * height / (this.N * Math.sqrt(2));
-      var kW = 2 * width / this.N;
+      var kH = 2 * height / (this.settings.N * Math.sqrt(2));
+      var kW = 2 * width / this.settings.N;
 
       edge = Math.max(kH, kW);
     },
 
     run: function(timestamp: number) {
-      if (timestamp > lastUpdate + (1000/this.updateInterval)) {
+      if (timestamp > lastUpdate + (1000/this.settings.updateInterval)) {
         this.update();
         lastUpdate = timestamp;
       }
 
-      if (timestamp > lastDraw + (1000/this.drawInterval)) {
+      if (timestamp > lastDraw + (1000/this.settings.drawInterval)) {
         this.draw();
         lastDraw = timestamp;
       }
@@ -159,7 +172,7 @@ export default function (canvas: HTMLCanvasElement) {
     },
 
     computeLiveNeighbours: function(i: number) {
-      var N = this.N;
+      var N = this.settings.N;
       var x = i % N;
       var y = i / N | 0;
       var LN = 0;
@@ -192,7 +205,7 @@ export default function (canvas: HTMLCanvasElement) {
     },
 
     neighbourAt: function(x: number, y: number, neighbour: number[]) {
-      var N = this.N;
+      var N = this.settings.N;
       var dx = x + neighbour[1];
       var dy = y + neighbour[0];
       // wrap around
@@ -215,7 +228,7 @@ export default function (canvas: HTMLCanvasElement) {
       var i, x, y, l: number, val;
       var NextField = this.initializeField();
 
-      var N = this.N;
+      var N = this.settings.N;
 
       for(i = 0, l = Field.length; i < l; i++) {
 
@@ -256,7 +269,7 @@ export default function (canvas: HTMLCanvasElement) {
     parseRule : function() {
       var ruleExp = /(\d+|\d+,\d+)\/(\d+|\d+,\d+)$/i;
 
-      var results = ruleExp.exec(this.rule);
+      var results = ruleExp.exec(this.settings.rule);
 
       if (!results || results.length !== 3) {
         var settings = {
@@ -269,7 +282,7 @@ export default function (canvas: HTMLCanvasElement) {
             h: 1
           },
         }
-        this.rule = "2/1";
+        this.settings.rule = "2/1";
       } else {
         var settings: ILifeRuleSettings = {
           env: {
@@ -306,16 +319,16 @@ export default function (canvas: HTMLCanvasElement) {
 
 
       }
-      console.log("Parsed Rule:", this.rule, "into", settings);
+      console.log("Parsed Rule:", this.settings.rule, "into", settings);
       this.lifeSettings = settings;
 
     },
 
     draw: function() {
-      context.fillStyle = 'rgba(0, 0, 0, ' + this.bg_alpha/100 +')';
+      context.fillStyle = 'rgba(0, 0, 0, ' + this.settings.bg_alpha/100 +')';
       context.fillRect(0, 0, width, height);
 
-      var N = this.N;
+      var N = this.settings.N;
       var x, y, i, l: number,
           baseY,
           lEdge = edge * Math.cos(Math.PI/6);
@@ -327,8 +340,8 @@ export default function (canvas: HTMLCanvasElement) {
 
 
 
-      if (this.cycleHue)
-          this.monochromeHue = (this.monochromeHue + (360/this.speed)) % 360;
+      if (this.settings.cycleHue)
+          this.settings.monochromeHue = (this.settings.monochromeHue + (360/this.speed)) % 360;
 
       for(i = 0, l = Field.length; i < l; i++) {
 
@@ -348,36 +361,47 @@ export default function (canvas: HTMLCanvasElement) {
     random : function () {
       Field = this.initializeField();
       context.clearRect(0, 0, width, height);
-      var N = this.N;
-      for (var i = 0; i < this.seeds; i++) {
+      var N = this.settings.N;
+      for (var i = 0; i < this.settings.seeds; i++) {
         var idx = Math.floor(Math.random() * N * N)
-
         Field[idx] = 1;
       }
     },
 
+    loadSettings: function(settings: ISettings)
+    {
+      this.settings = settings;
+
+      this.setSize();
+      this.random();
+    },
 
     // set random settings
     randomize : function () {
-      this.N = 2 + Math.floor(Math.random() * 100);
-      this.stroke = (Math.random() >= 0.5);
-      if (!this.stroke) {
-        this.fill = true;
-      } else {
-        this.fill = (Math.random() >= 0.5);
+      const coinflip = () => (Math.random() > .5);
+      var settings: ISettings = {
+        N: 2 + Math.floor(Math.random() * 100),
+        stroke: coinflip(),
+        fill: coinflip(),
+        speed : 1 + Math.floor(Math.random() * 1000),
+        fg_alpha : 1 + Math.floor(Math.random() * 100),
+        bg_alpha : 1 + Math.floor(Math.random() * 100),
+        seeds : 1 + Math.floor(Math.random() * 10),
+        updateInterval : 10 + Math.floor(Math.random() * 100),
+        drawInterval : 10 + Math.floor(Math.random() * 100),
+        waveform : ['triangle', 'saw', 'sine'][Math.floor(Math.random() * 2)] as "triangle" | "sine" | "saw",
+        monochrome : coinflip(),
+        monochromeHue : 100 * Math.random(),
+        cycleHue: coinflip(), 
+        rule: this.settings.rule,
       }
-
+      
+      if (!settings.stroke) {
+        settings.fill = true;
+      } 
       this.colorCounter = 0;
       this.counterAngle = 0;
-      this.speed = 1+ Math.floor(Math.random() * 1000);
-      this.fg_alpha = 1 + Math.floor(Math.random() * 100);
-      this.bg_alpha = 1 + Math.floor(Math.random() * 100);;
-      this.seeds = 1 + Math.floor(Math.random() * 10);
-      this.updateInterval = 10 + Math.floor(Math.random() * 100);
-      this.drawInterval = 10 + Math.floor(Math.random() * 100);
-      this.waveform = ['triangle', 'saw', 'sine'][Math.floor(Math.random() * 2)]
-      this.monochrome = (Math.random() >= 0.5);
-      this.monochromeHue = 100 * Math.random();
+      this.settings = settings;
 
       this.setSize();
       this.random();
@@ -423,15 +447,15 @@ export default function (canvas: HTMLCanvasElement) {
       // var val = Field[x + (N * y)];
       var speed = 1001 - this.speed;
 
-      if (this.monochrome) {
+      if (this.settings.monochrome) {
 
-        var color = hslToRgb(this.monochromeHue/360, 1, 0.5, this.fg_alpha / 100);
+        var color = hslToRgb(this.settings.monochromeHue/360, 1, 0.5, this.settings.fg_alpha / 100);
       } else {
 
         counterIncrease = Math.PI / speed;
         counterAngle += counterIncrease;
         // sin
-        switch (this.waveform) {
+        switch (this.settings.waveform) {
           case 'sin':
             colorCounter = 1 + (Math.sin(counterAngle)/2);
             break;
@@ -448,15 +472,15 @@ export default function (canvas: HTMLCanvasElement) {
 
 
 
-        var color = hslToRgb(colorCounter, 1, 0.5, this.fg_alpha / 100);
+        var color = hslToRgb(colorCounter, 1, 0.5, this.settings.fg_alpha / 100);
       }
 
 
-      if (this.fill) {
+      if (this.settings.fill) {
         context.fillStyle = color;
         context.fill();
       }
-      if (this.stroke){
+      if (this.settings.stroke){
         context.strokeStyle = color
         context.stroke();
       }
