@@ -1,9 +1,19 @@
-hslToRgb = require('./hslToRgb');
+import hslToRgb from './hslToRgb';
 
 var dat = require('dat.gui');
+    
+interface ILifeRuleSettings {
+  env: {
+    l: number;
+    h: number;
+  };
+  fer: {
+    l: number;
+    h: number;
+  };
+}
 
-
-module.exports = function(canvas) {
+export default function (canvas: HTMLCanvasElement) {
   var context = canvas.getContext('2d');
   var edge = 0;
   var width = canvas.width;
@@ -11,13 +21,14 @@ module.exports = function(canvas) {
   var SQRT2 = Math.sqrt(2);
   var colorCounter = 0;
   var counterAngle = 0;
+  var counterIncrease = 0;
   var lastUpdate = 0;
   var lastDraw = 0;
-  var animId = null;
+  var animId: ReturnType<typeof requestAnimationFrame> = null;
 
   var rule = "2/1";
 
-  var Field;
+  var Field: any[];
 
   var debug = document.querySelector('p');
 
@@ -83,7 +94,7 @@ module.exports = function(canvas) {
       edge = Math.max(kH, kW);
     },
 
-    run: function(timestamp) {
+    run: function(timestamp: number) {
       if (timestamp > lastUpdate + (1000/this.updateInterval)) {
         this.update();
         lastUpdate = timestamp;
@@ -103,7 +114,7 @@ module.exports = function(canvas) {
       console.log('opening', imgURI)
     },
 
-    toggleControls : function(e) {
+    toggleControls : function(e: { currentTarget: { innerHTML: string; }; }) {
       var t = document.querySelector('.title');
       if (t.classList.contains('hide')) {
         t.classList.remove('hide')
@@ -147,7 +158,7 @@ module.exports = function(canvas) {
         ]
     },
 
-    computeLiveNeighbours: function(i) {
+    computeLiveNeighbours: function(i: number) {
       var N = this.N;
       var x = i % N;
       var y = i / N | 0;
@@ -159,7 +170,8 @@ module.exports = function(canvas) {
       */
       // var type = (y % 2 << 1) + x % 2;
       var type = (x + y) % 2;
-      var i, l, nList, nb;
+      var i: number;
+      var l, nList, nb;
 
       // Even Cell
       if (type === 1) {
@@ -179,7 +191,7 @@ module.exports = function(canvas) {
 
     },
 
-    neighbourAt: function(x, y, neighbour) {
+    neighbourAt: function(x: number, y: number, neighbour: number[]) {
       var N = this.N;
       var dx = x + neighbour[1];
       var dy = y + neighbour[0];
@@ -200,7 +212,7 @@ module.exports = function(canvas) {
     update: function() {
       var LN = 0; // live neighbors
       var type; // 0, 1, 2 or 3
-      var i, x, y, l, val;
+      var i, x, y, l: number, val;
       var NextField = this.initializeField();
 
       var N = this.N;
@@ -221,7 +233,7 @@ module.exports = function(canvas) {
     },
 
 
-    computeNextStateOfCell : function(i, LN) {
+    computeNextStateOfCell : function(i: number, LN: number) {
       var val = Field[i];
 
       if (val > 0) {
@@ -259,17 +271,23 @@ module.exports = function(canvas) {
         }
         this.rule = "2/1";
       } else {
-        var settings = {
-          env: {},
-          fer: {}
+        var settings: ILifeRuleSettings = {
+          env: {
+            l: 0,
+            h: 0,
+          },
+          fer: {
+            l: 0,
+            h: 0,
+          }
         };
 
         // environment
         var env = results[1];
         if (env.length >= 3) {
-          env = env.split(',');
-          settings.env.l = +env[0];
-          settings.env.h = +env[1];
+          var envp = env.split(',');
+          settings.env.l = +envp[0];
+          settings.env.h = +envp[1];
         } else {
           settings.env.l = +env;
           settings.env.h = +env;
@@ -278,9 +296,9 @@ module.exports = function(canvas) {
         // fertility
         var fer = results[2];
         if (fer.length >= 3) {
-          fer = fer.split(',');
-          settings.fer.l = +fer[0];
-          settings.fer.h = +fer[1];
+          var ferp = fer.split(',');
+          settings.fer.l = +ferp[0];
+          settings.fer.h = +ferp[1];
         } else {
           settings.fer.l = +fer;
           settings.fer.h = +fer;
@@ -298,7 +316,7 @@ module.exports = function(canvas) {
       context.fillRect(0, 0, width, height);
 
       var N = this.N;
-      var x, y, i, l,
+      var x, y, i, l: number,
           baseY,
           lEdge = edge * Math.cos(Math.PI/6);
 
@@ -365,7 +383,7 @@ module.exports = function(canvas) {
       this.random();
     },
 
-    drawTriangle: function(x, y, lEdge, baseY, translate) {
+    drawTriangle: function(x: number, y: number, lEdge: any, baseY: any, translate: { x: number; y: any; }) {
       context.beginPath();
 
       var type = (y%2 << 1) + x%2 ;
@@ -400,7 +418,7 @@ module.exports = function(canvas) {
 
     },
 
-    setColors: function(x, y) {
+    setColors: function(x: any, y: any) {
 
       // var val = Field[x + (N * y)];
       var speed = 1001 - this.speed;
