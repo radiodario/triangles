@@ -341,7 +341,7 @@ export default function (canvas: HTMLCanvasElement) {
 
 
       if (this.settings.cycleHue)
-          this.settings.monochromeHue = (this.settings.monochromeHue + (360/this.speed)) % 360;
+          this.settings.monochromeHue = (this.settings.monochromeHue + (360/this.settings.speed)) % 360;
 
       for(i = 0, l = Field.length; i < l; i++) {
 
