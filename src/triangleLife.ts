@@ -123,8 +123,12 @@ export default function (canvas: HTMLCanvasElement) {
 
     saveSnap : function() {
       var imgURI = canvas.toDataURL('image/png');
-      window.open(imgURI);
-      console.log('opening', imgURI)
+      var iframe =
+        "<iframe width='100%' height='100%' src='" + imgURI + "'></iframe>";
+      var x = window.open();
+      x.document.open();
+      x.document.write(iframe);
+      x.document.close();
     },
 
     toggleControls : function(e: { currentTarget: { innerHTML: string; }; }) {
